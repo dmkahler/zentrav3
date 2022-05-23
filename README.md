@@ -23,4 +23,7 @@ This syntax is used in the shell scripts (which are stored as batch, .bat, files
 chmod +x zentrapull.bat
 ```
 
+## Additional Notes  
+The script runs fairly quickly; however, there is a limit of one pull per 60 seconds.  Do not query the database more frequently or you can get locked out (temporarily).  Also, if you use the published maximum of 200 records, you will have to pull less than one month at a time; therefore, you may have to pull repeatedly.  
+
 
