@@ -19,15 +19,13 @@ wide <- dat %>%
       pivot_wider(names_from = measurement, values_from = value)
 usaid <- wide %>%
       mutate(dt=as_datetime(timestamp_utc)) %>%
-      mutate(yr=year(dt+offset), mo=month(dt+offset), da=day(dt+offset), hr=hour(dt+offset), mn=minute(dt+offset)) %>%
+      mutate(YEAR=year(dt+offset), MNTH=month(dt+offset), DAYN=day(dt+offset), HOUR=hour(dt+offset), MINU=minute(dt+offset)) %>%
       # FOR USAID: YEAR, MNTH, DAYN, HOUR, MINU, PRCP, SRAD, TEMP, RHMD, APRS, WSPD, WDIR
       mutate(at=(`Air Temperature`+273.15)) %>% # convert air temperature to Kelvin
       mutate(svp=(6984.505294+at*(-188.903931+at*(2.133357675+at*(-0.01288580973+at*(0.00004393587233+at*(-0.00000008023923082+at*6.136820929E-11))))))/10) %>% # compute saturation vapor pressure in kPa via the Goff-Gratch equation, in nested form (Lowe, 1977; Brutsaert, 2005)
       mutate(vp=`Vapor Pressure`) %>% # import vapor pressure in kPa
       mutate(PRCP=Precipitation, SRAD=`Solar Radiation`, TEMP=`Air Temperature`, RHMD=round(100*(vp/svp), digits = 1), APRS=`Atmospheric Pressure`, WSPD=`Wind Speed`, WDIR=`Wind Direction`) %>%
-      select(yr,mo,da,hr,mn,PRCP,SRAD,TEMP,RHMD,APRS,WSPD,WDIR)
-
-hl <- c("YEAR", "MONT", "DAYN", "HOUR", "MINU", "PRCP", "SRAD", "TEMP", "RHMD", "APRS", "WSPD", "WDIR")
+      select(YEAR,MNTH,DAYN,HOUR,MINU,PRCP,SRAD,TEMP,RHMD,APRS,WSPD,WDIR)
 
 if (site == "mutale") {
       usaid <- usaid %>%
@@ -35,13 +33,18 @@ if (site == "mutale") {
             mutate(WTMP=`water temp`) %>%
             mutate(COND=1000 * conductivity) %>% # convert from mS/cm to uS/cm.
             mutate(TRBD=-8888)
-      hl <- c("YEAR", "MONT", "DAYN", "HOUR", "MINU", "PRCP", "SRAD", "TEMP", "RHMD", "APRS", "WSPD", "WDIR", "RIVS", "WTMP", "COND", "TRBD")
 }
 
 today <- Sys.Date()
+h <- names(usaid)
+s <- length(h)
+hl <- array("a", dim = c(1,s))
+for (i in 1:length(h)) {
+      hl[1,i] <- h[i]
+}
 hl <- data.frame(hl)
-write_csv(hl, paste0(site, "_", today, ".usaid.csv"), append = TRUE, eol = "\n") # writes headers
-write_csv(usaid, paste0(site, "_", today, ".usaid.csv"), na = "NA", append = TRUE, eol = "\n") # writes data, UNIX standard end of line, comma-delimited, decimal point used "."
+write_csv(hl, paste0(site, "_", as.character(mrid_start[[1]]), "_", today, ".usaid.csv"), append = TRUE, eol = "\n") # writes headers
+write_csv(usaid, paste0(site, "_", as.character(mrid_start[[1]]), "_", today, ".usaid.csv"), na = "NA", append = TRUE, eol = "\n") # writes data, UNIX standard end of line, comma-delimited, decimal point used "."
 
 # Log data download
 tracker <- array("NA", dim=c(1,6))
