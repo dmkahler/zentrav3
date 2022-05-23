@@ -13,6 +13,7 @@ library(RCurl)
 # Import data
 dat <- readr::read_csv("apidownload.csv", skip = 8)
 offset <- 2*3600 # UTC offset for SAST is 2 hours
+mrid_start <- min(dat$mrid)
 
 wide <- dat %>%
       select(timestamp_utc,measurement,value) %>%
