@@ -66,7 +66,7 @@ tracker[1,3] <- paste(as.character(as_datetime(start)), "UTC") # first date/time
 no_records <- nrow(usaid)
 tracker[1,4] <- as.character(no_records)
 end <- max(dat$timestamp_utc)
-no_time <- (end-start)/(15*60)+1 # MUST be no_time>=no_records, SHOULD by no_time==no_records
+no_time <- (end-start)/(15*60)+1 # MUST be no_time>=no_records, SHOULD be no_time==no_records
 print(paste("Number of time steps:  ",no_time))
 print(paste("Number of records:     ",no_records))
 tracker[1,5] <- paste(as.character(as_datetime(end)), "UTC") # last date/time in download, in date format
