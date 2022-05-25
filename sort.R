@@ -18,22 +18,32 @@ mrid_start <- min(dat$mrid)
 wide <- dat %>%
       select(timestamp_utc,measurement,value) %>%
       pivot_wider(names_from = measurement, values_from = value)
-usaid <- wide %>%
-      mutate(dt=as_datetime(timestamp_utc)) %>%
-      mutate(YEAR=year(dt+offset), MNTH=month(dt+offset), DAYN=day(dt+offset), HOUR=hour(dt+offset), MINU=minute(dt+offset)) %>%
-      # FOR USAID: YEAR, MNTH, DAYN, HOUR, MINU, PRCP, SRAD, TEMP, RHMD, APRS, WSPD, WDIR
-      mutate(at=(`Air Temperature`+273.15)) %>% # convert air temperature to Kelvin
-      mutate(svp=(6984.505294+at*(-188.903931+at*(2.133357675+at*(-0.01288580973+at*(0.00004393587233+at*(-0.00000008023923082+at*6.136820929E-11))))))/10) %>% # compute saturation vapor pressure in kPa via the Goff-Gratch equation, in nested form (Lowe, 1977; Brutsaert, 2005)
-      mutate(vp=`Vapor Pressure`) %>% # import vapor pressure in kPa
-      mutate(PRCP=Precipitation, SRAD=`Solar Radiation`, TEMP=`Air Temperature`, RHMD=round(100*(vp/svp), digits = 1), APRS=`Atmospheric Pressure`, WSPD=`Wind Speed`, WDIR=`Wind Direction`) %>%
-      select(YEAR,MNTH,DAYN,HOUR,MINU,PRCP,SRAD,TEMP,RHMD,APRS,WSPD,WDIR)
 
 if (site == "mutale") {
-      usaid <- usaid %>%
-            mutate(RIVS=(`water`-875)/1000) %>% # measured above the weir crest, to coincide with the staff gage at the weir, sensor is located 0.875 m below the weir crest, converted to m from mm
-            mutate(WTMP=`water temp`) %>%
-            mutate(COND=1000 * conductivity) %>% # convert from mS/cm to uS/cm.
-            mutate(TRBD=-8888)
+      usaid <- wide %>%
+            mutate(dt=as_datetime(timestamp_utc)) %>%
+            mutate(YEAR=year(dt+offset), MNTH=month(dt+offset), DAYN=day(dt+offset), HOUR=hour(dt+offset), MINU=minute(dt+offset)) %>%
+            # FOR USAID: YEAR, MNTH, DAYN, HOUR, MINU, PRCP, SRAD, TEMP, RHMD, APRS, WSPD, WDIR
+            mutate(at=(`Air Temperature`+273.15)) %>% # convert air temperature to Kelvin
+            mutate(svp=(6984.505294+at*(-188.903931+at*(2.133357675+at*(-0.01288580973+at*(0.00004393587233+at*(-0.00000008023923082+at*6.136820929E-11))))))/10) %>% # compute saturation vapor pressure in kPa via the Goff-Gratch equation, in nested form (Lowe, 1977; Brutsaert, 2005)
+            mutate(vp=`Vapor Pressure`) %>% # import vapor pressure in kPa
+            mutate(PRCP=Precipitation, SRAD=`Solar Radiation`, TEMP=`Air Temperature`, RHMD=round(100*(vp/svp), digits = 1), APRS=`Atmospheric Pressure`, WSPD=`Wind Speed`, WDIR=`Wind Direction`) %>%
+            mutate(RIVS=(`Water Level`-875)/1000) %>% # measured above the weir crest, to coincide with the staff gage at the weir, sensor is located 0.875 m below the weir crest, converted to m from mm
+            mutate(WTMP=`Water Temperature`) %>%
+            mutate(COND=1000 * EC) %>% # convert from mS/cm to uS/cm.
+            mutate(TRBD=-8888) %>%
+            select(YEAR,MNTH,DAYN,HOUR,MINU,PRCP,SRAD,TEMP,RHMD,APRS,WSPD,WDIR,RIVS,WTMP,COND,TRBD)
+} else {
+      usaid <- wide %>%
+            mutate(dt=as_datetime(timestamp_utc)) %>%
+            mutate(YEAR=year(dt+offset), MNTH=month(dt+offset), DAYN=day(dt+offset), HOUR=hour(dt+offset), MINU=minute(dt+offset)) %>%
+            # FOR USAID: YEAR, MNTH, DAYN, HOUR, MINU, PRCP, SRAD, TEMP, RHMD, APRS, WSPD, WDIR
+            mutate(at=(`Air Temperature`+273.15)) %>% # convert air temperature to Kelvin
+            mutate(svp=(6984.505294+at*(-188.903931+at*(2.133357675+at*(-0.01288580973+at*(0.00004393587233+at*(-0.00000008023923082+at*6.136820929E-11))))))/10) %>% # compute saturation vapor pressure in kPa via the Goff-Gratch equation, in nested form (Lowe, 1977; Brutsaert, 2005)
+            mutate(vp=`Vapor Pressure`) %>% # import vapor pressure in kPa
+            mutate(PRCP=Precipitation, SRAD=`Solar Radiation`, TEMP=`Air Temperature`, RHMD=round(100*(vp/svp), digits = 1), APRS=`Atmospheric Pressure`, WSPD=`Wind Speed`, WDIR=`Wind Direction`) %>%
+            select(YEAR,MNTH,DAYN,HOUR,MINU,PRCP,SRAD,TEMP,RHMD,APRS,WSPD,WDIR)
+      
 }
 
 today <- Sys.Date()
