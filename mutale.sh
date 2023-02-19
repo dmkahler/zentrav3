@@ -6,7 +6,7 @@ curl -X GET "https://zentracloud.com/api/v3/get_readings/?device_sn=z6-03792&sta
 
 git pull
 
-Rscript sort.R "mutale"
+Rscript sortCUAHSI.R "mutale"
 
 git add mutale_mrid.csv
 git add mutale_mrid_next.txt
